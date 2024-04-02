@@ -100,6 +100,7 @@ public class PlayerMove : MonoBehaviour
         SpeedControl();
         StateHandler();
         PlayAnimations();
+        //UpdateSteps();
 
         // friction
         if (grounded)
@@ -111,8 +112,8 @@ public class PlayerMove : MonoBehaviour
     private void FixedUpdate()
     {
         MovePlayer();
-        ExtraGravity();
-        UpdateSteps();
+        //ExtraGravity();
+        //UpdateSteps();
         //Step();
     }
 
@@ -230,11 +231,12 @@ public class PlayerMove : MonoBehaviour
         if (!canMove) return;
         moveDir = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
+        transform.position = new Vector3(transform.position.x, 0.11f, transform.position.z);
+
         if(grounded)
             rb.AddForce(moveDir.normalized * moveSpeed * 10f, ForceMode.Force);
         else if(!grounded)
             rb.AddForce(moveDir.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
-
     }
 
     private void SpeedControl()
@@ -274,6 +276,14 @@ public class PlayerMove : MonoBehaviour
     
     private void UpdateSteps()
     {
+        //if(grounded)
+        {
+            RaycastHit hit;
+            Physics.Raycast(transform.position, Vector3.down, out hit, 1f, whatIsGround);
+            // get distance to ground
+            //float dist = hit.distance;
+            transform.position = new Vector3(transform.position.x, 0.11f, transform.position.z);
+        }
     }
 
     private void Step()

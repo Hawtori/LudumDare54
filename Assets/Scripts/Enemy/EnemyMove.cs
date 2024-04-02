@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.AI;
 
 public class EnemyMove : MonoBehaviour
 {
@@ -18,6 +19,8 @@ public class EnemyMove : MonoBehaviour
     public Slider slider;
     public Image fill;
     public UnityEngine.Color susColor, alertColor;
+
+    private NavMeshAgent agent;
 
     public float walkSpeed; // patrol, multiply by 1.5 or something when investigating
     public float runSpeed; // chase player, multiply by 1.5 when gg
@@ -56,6 +59,7 @@ public class EnemyMove : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         state = States.patrol;
+        agent = GetComponent<NavMeshAgent>();
     }
 
     private void Update()
@@ -98,6 +102,9 @@ public class EnemyMove : MonoBehaviour
             waitTime = 0f;
             // move to point using pathfinding
             Vector3 dir = point - transform.position;
+            if (agent != null)
+                agent.destination = point;
+            else
             rb.velocity = moveSpeed * dir.normalized;
         }
         
@@ -116,6 +123,9 @@ public class EnemyMove : MonoBehaviour
         Vector3 _dir = (pos - transform.position).normalized;
         transform.rotation = (Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(_dir), Time.deltaTime * 5f));
 
+        if(agent != null)
+        agent.destination = pos;
+        else
         rb.velocity = _dir * moveSpeed;
     }
 
@@ -185,7 +195,10 @@ public class EnemyMove : MonoBehaviour
         transform.LookAt(investigateSource.position);
 
         // pathfind to investigateSource.position
-        rb.velocity = (investigateSource.position - transform.position).normalized * moveSpeed;
+        if(agent != null)
+        agent.destination = investigateSource.position;
+        else
+            rb.velocity = (investigateSource.position - transform.position).normalized * moveSpeed;
 
         investigatingTime += Time.deltaTime;
         if(investigatingTime >= 4 * (susTimes == 0 ? 1 : susTimes))
